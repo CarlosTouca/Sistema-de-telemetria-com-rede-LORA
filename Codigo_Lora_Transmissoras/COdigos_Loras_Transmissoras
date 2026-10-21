@@ -1,0 +1,401 @@
+#include "Arduino.h"
+#include "LoRaWan_APP.h"
+#include "driver/board-config.h"
+
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include "DHT.h"
+
+#define DEVICE_ID "ESP_01"
+
+// =====================================================
+// DHT22
+// =====================================================
+#define DHT_PIN 4
+#define DHT_TYPE DHT22
+
+DHT dht(DHT_PIN, DHT_TYPE);
+
+// =====================================================
+// OLED HELTEC V3
+// =====================================================
+#define OLED_WIDTH 128
+#define OLED_HEIGHT 64
+
+#define OLED_SDA 17
+#define OLED_SCL 18
+#define OLED_RESET 21
+#define VEXT_PIN 36
+
+Adafruit_SSD1306 oled(
+  OLED_WIDTH,
+  OLED_HEIGHT,
+  &Wire,
+  OLED_RESET
+);
+
+bool oledFuncionando = false;
+
+// =====================================================
+// CONFIGURAÇÃO LORA
+// =====================================================
+#define RF_FREQUENCY 915000000
+#define TX_OUTPUT_POWER 20
+
+#define LORA_BANDWIDTH 0
+#define LORA_SPREADING_FACTOR 9
+#define LORA_CODINGRATE 1
+#define LORA_PREAMBLE_LENGTH 12
+#define LORA_SYMBOL_TIMEOUT 0
+#define LORA_FIX_LENGTH_PAYLOAD_ON false
+#define LORA_IQ_INVERSION_ON false
+
+#define INTERVALO_ENVIO 2500
+
+char txpacket[120];
+
+static RadioEvents_t RadioEvents;
+
+volatile bool envioConcluido = false;
+volatile bool envioFalhou = false;
+volatile bool radioTransmitindo = false;
+
+unsigned long sequencia = 0;
+unsigned long proximoEnvio = 0;
+
+float ultimaTemperatura = 0.0;
+float ultimaUmidade = 0.0;
+
+// =====================================================
+// OLED
+// =====================================================
+void mostrarDadosOLED(
+  String status,
+  unsigned long seq,
+  float temperatura,
+  float umidade
+) {
+  if (!oledFuncionando) {
+    return;
+  }
+
+  oled.clearDisplay();
+  oled.setTextSize(1);
+  oled.setTextColor(SSD1306_WHITE);
+  oled.setTextWrap(false);
+
+  oled.setCursor(0, 0);
+  oled.print("{");
+  oled.print(DEVICE_ID);
+  oled.print("} ");
+  oled.println(status);
+
+  oled.setCursor(0, 12);
+  oled.print("\"seq\": ");
+  oled.println(seq);
+
+  oled.setCursor(0, 24);
+  oled.print("\"temp\": ");
+  oled.print(temperatura, 1);
+  oled.println(" C");
+
+  oled.setCursor(0, 36);
+  oled.print("\"umid\": ");
+  oled.print(umidade, 1);
+  oled.println(" %");
+
+  oled.setCursor(0, 48);
+  oled.println("\"sensor\": DHT22");
+
+  oled.display();
+}
+
+void mostrarErroDHT() {
+  if (!oledFuncionando) {
+    return;
+  }
+
+  oled.clearDisplay();
+  oled.setTextSize(1);
+  oled.setTextColor(SSD1306_WHITE);
+
+  oled.setCursor(0, 0);
+  oled.println(DEVICE_ID);
+
+  oled.setCursor(0, 16);
+  oled.println("ERRO NO DHT22");
+
+  oled.setCursor(0, 32);
+  oled.println("DATA: GPIO 4");
+
+  oled.setCursor(0, 48);
+  oled.println("Verifique ligacao");
+
+  oled.display();
+}
+
+// =====================================================
+// CALLBACKS DO RADIO
+// =====================================================
+void OnTxDone(void) {
+  radioTransmitindo = false;
+  envioConcluido = true;
+}
+
+void OnTxTimeout(void) {
+  radioTransmitindo = false;
+  envioFalhou = true;
+}
+
+// =====================================================
+// LE, MONTA E ENVIA O DADO
+// =====================================================
+bool enviarDados() {
+  float temperatura = dht.readTemperature();
+  float umidade = dht.readHumidity();
+
+  if (isnan(temperatura) || isnan(umidade)) {
+    Serial.println("ERRO: nao foi possivel ler o DHT22.");
+
+    mostrarErroDHT();
+
+    return false;
+  }
+
+  sequencia++;
+
+  ultimaTemperatura = temperatura;
+  ultimaUmidade = umidade;
+
+  /*
+    Formato compatível com a central antiga:
+
+    ID=ESP_01;SEQ=1;TEMP=25.4;UMID=61.2;BAT=0.00
+
+    BAT=0.00 não é uma leitura de bateria.
+    Ele fica apenas para manter compatibilidade
+    com o código antigo da central.
+  */
+  snprintf(
+    txpacket,
+    sizeof(txpacket),
+    "ID=%s;SEQ=%lu;TEMP=%.1f;UMID=%.1f;BAT=0.00",
+    DEVICE_ID,
+    sequencia,
+    temperatura,
+    umidade
+  );
+
+  Serial.println();
+  Serial.println("===== DADOS DO DHT22 =====");
+
+  Serial.print("ID: ");
+  Serial.println(DEVICE_ID);
+
+  Serial.print("Sequencia: ");
+  Serial.println(sequencia);
+
+  Serial.print("Temperatura: ");
+  Serial.print(temperatura, 1);
+  Serial.println(" C");
+
+  Serial.print("Umidade: ");
+  Serial.print(umidade, 1);
+  Serial.println(" %");
+
+  Serial.println();
+  Serial.println("===== PACOTE ENVIADO =====");
+  Serial.println(txpacket);
+
+  mostrarDadosOLED(
+    "ENVIANDO",
+    sequencia,
+    temperatura,
+    umidade
+  );
+
+  radioTransmitindo = true;
+
+  Radio.Send(
+    (uint8_t*)txpacket,
+    strlen(txpacket)
+  );
+
+  return true;
+}
+
+// =====================================================
+// SETUP
+// =====================================================
+void setup() {
+  Serial.begin(115200);
+  delay(500);
+
+  // Inicializa a Heltec
+  Mcu.begin(
+    HELTEC_BOARD,
+    SLOW_CLK_TPYE
+  );
+
+  // Inicializa o DHT22
+  dht.begin();
+
+  // Liga alimentação do OLED
+  pinMode(VEXT_PIN, OUTPUT);
+  digitalWrite(VEXT_PIN, LOW);
+  delay(200);
+
+  // Reset físico do OLED
+  pinMode(OLED_RESET, OUTPUT);
+  digitalWrite(OLED_RESET, LOW);
+  delay(20);
+  digitalWrite(OLED_RESET, HIGH);
+  delay(50);
+
+  // Inicializa I2C
+  Wire.begin(
+    OLED_SDA,
+    OLED_SCL
+  );
+
+  // Inicializa OLED
+  oledFuncionando = oled.begin(
+    SSD1306_SWITCHCAPVCC,
+    0x3C
+  );
+
+  if (oledFuncionando) {
+    mostrarDadosOLED(
+      "PRONTO",
+      0,
+      0.0,
+      0.0
+    );
+
+    Serial.println("OLED funcionando.");
+  } else {
+    Serial.println("OLED nao encontrado.");
+  }
+
+  // Inicializa callbacks
+  RadioEvents.TxDone = OnTxDone;
+  RadioEvents.TxTimeout = OnTxTimeout;
+
+  // Inicializa rádio
+  Radio.Init(&RadioEvents);
+
+  Radio.SetChannel(RF_FREQUENCY);
+
+  Radio.SetTxConfig(
+    MODEM_LORA,
+    TX_OUTPUT_POWER,
+    0,
+    LORA_BANDWIDTH,
+    LORA_SPREADING_FACTOR,
+    LORA_CODINGRATE,
+    LORA_PREAMBLE_LENGTH,
+    LORA_FIX_LENGTH_PAYLOAD_ON,
+    true,
+    0,
+    0,
+    LORA_IQ_INVERSION_ON,
+    5000
+  );
+
+  /*
+    Cada transmissora começa em um momento diferente:
+
+    ESP_01: 600 ms
+    ESP_02: 1400 ms
+    ESP_03: 2200 ms
+  */
+
+  uint32_t atrasoInicial;
+
+  if (String(DEVICE_ID) == "ESP_01") {
+    atrasoInicial = 600;
+  }
+  else if (String(DEVICE_ID) == "ESP_02") {
+    atrasoInicial = 1400;
+  }
+  else {
+    atrasoInicial = 2200;
+  }
+
+  proximoEnvio = millis() + atrasoInicial;
+
+  Serial.println();
+  Serial.println("==============================");
+  Serial.print("TRANSMISSOR: ");
+  Serial.println(DEVICE_ID);
+  Serial.println("Sensor: DHT22 real");
+  Serial.println("DATA: GPIO 4");
+  Serial.println("Frequencia: 915 MHz");
+  Serial.println("SF: 9");
+  Serial.println("Potencia: 20 dBm");
+  Serial.println("Intervalo: 2,5 segundos");
+  Serial.println("==============================");
+}
+
+// =====================================================
+// LOOP
+// =====================================================
+void loop() {
+  Radio.IrqProcess();
+
+  // Envio contínuo, sem limite de quantidade
+  if (
+    !radioTransmitindo &&
+    millis() >= proximoEnvio
+  ) {
+    bool leituraValida = enviarDados();
+
+    if (leituraValida) {
+      proximoEnvio = millis() + INTERVALO_ENVIO;
+    } else {
+      // Tenta novamente após 1 segundo
+      proximoEnvio = millis() + 1000;
+    }
+  }
+
+  if (envioConcluido) {
+    envioConcluido = false;
+
+    Serial.println("Envio LoRa concluido.");
+
+    mostrarDadosOLED(
+      "ENVIADO",
+      sequencia,
+      ultimaTemperatura,
+      ultimaUmidade
+    );
+  }
+
+  if (envioFalhou) {
+    envioFalhou = false;
+
+    Serial.println("Falha no envio LoRa.");
+
+    if (oledFuncionando) {
+      oled.clearDisplay();
+      oled.setTextSize(1);
+      oled.setTextColor(SSD1306_WHITE);
+
+      oled.setCursor(0, 0);
+      oled.println(DEVICE_ID);
+
+      oled.setCursor(0, 16);
+      oled.println("FALHA NO ENVIO");
+
+      oled.setCursor(0, 32);
+      oled.println("Tentando novamente");
+
+      oled.display();
+    }
+
+    proximoEnvio = millis() + 500;
+  }
+
+  delay(2);
+}

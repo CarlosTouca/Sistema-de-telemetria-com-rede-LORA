@@ -1,0 +1,229 @@
+#include <WiFi.h>
+#include <WebServer.h>
+
+//Instalar WebSockets by Markus Sattler
+#include <WebSocketsServer.h>
+#include "DHT.h"
+
+// ===============================
+// WI-FI
+// ===============================
+const char* WIFI_SSID = "SUA_REDE_AQUI";
+const char* WIFI_SENHA = "SUA_SENHA";
+
+// ===============================
+// DHT22
+// ===============================
+#define DHTPIN 26
+#define DHTTYPE DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
+// ===============================
+// SERVIDORES
+// ===============================
+WebServer servidorHTTP(80);
+WebSocketsServer servidorWebSocket(81);
+
+unsigned long ultimaLeitura = 0;
+String ultimoJSON = "{\"status\":\"iniciando\"}";
+
+// ===============================
+// PÁGINA WEB
+// ===============================
+const char paginaHTML[] PROGMEM = R"rawliteral(
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DHT22 - ESP32</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #101820;
+      color: white;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .card {
+      max-width: 420px;
+      margin: auto;
+      padding: 25px;
+      border-radius: 18px;
+      background: #1d2b36;
+      box-shadow: 0 0 20px #0008;
+    }
+
+    .valor {
+      font-size: 32px;
+      margin: 20px;
+      color: #55d6be;
+    }
+
+    #status {
+      color: #ffd166;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>ESP32 + DHT22</h1>
+
+    <p id="status">Conectando ao WebSocket...</p>
+
+    <div class="valor">
+      🌡️ <span id="temperatura">--</span> °C
+    </div>
+
+    <div class="valor">
+      💧 <span id="umidade">--</span> %
+    </div>
+  </div>
+
+  <script>
+    const websocket = new WebSocket(
+      "ws://" + window.location.hostname + ":81/"
+    );
+
+    websocket.onopen = function() {
+      document.getElementById("status").innerText =
+        "WebSocket conectado";
+    };
+
+    websocket.onclose = function() {
+      document.getElementById("status").innerText =
+        "WebSocket desconectado";
+    };
+
+    websocket.onerror = function() {
+      document.getElementById("status").innerText =
+        "Erro no WebSocket";
+    };
+
+    websocket.onmessage = function(evento) {
+      const dados = JSON.parse(evento.data);
+
+      if (dados.erro) {
+        document.getElementById("status").innerText =
+          "Erro na leitura do DHT22";
+        return;
+      }
+
+      document.getElementById("temperatura").innerText =
+        dados.temperatura;
+
+      document.getElementById("umidade").innerText =
+        dados.umidade;
+
+      document.getElementById("status").innerText =
+        "Dados recebidos em tempo real";
+    };
+  </script>
+</body>
+</html>
+)rawliteral";
+
+// ===============================
+// EVENTOS DO WEBSOCKET
+// ===============================
+void eventoWebSocket(
+  uint8_t numeroCliente,
+  WStype_t tipo,
+  uint8_t* payload,
+  size_t tamanho
+) {
+  if (tipo == WStype_CONNECTED) {
+    Serial.print("Cliente WebSocket conectado: ");
+    Serial.println(numeroCliente);
+
+    servidorWebSocket.sendTXT(numeroCliente, ultimoJSON);
+  }
+
+  if (tipo == WStype_DISCONNECTED) {
+    Serial.print("Cliente desconectado: ");
+    Serial.println(numeroCliente);
+  }
+}
+
+// ===============================
+// LEITURA DO SENSOR
+// ===============================
+void lerSensorETransmitir() {
+  float umidade = dht.readHumidity();
+  float temperatura = dht.readTemperature();
+
+  if (isnan(umidade) || isnan(temperatura)) {
+    ultimoJSON = "{\"erro\":true}";
+    Serial.println("Falha na leitura do DHT22");
+  } else {
+    ultimoJSON =
+      "{\"temperatura\":" + String(temperatura, 2) +
+      ",\"umidade\":" + String(umidade, 2) + "}";
+
+    Serial.print("Temperatura: ");
+    Serial.print(temperatura);
+    Serial.println(" °C");
+
+    Serial.print("Umidade: ");
+    Serial.print(umidade);
+    Serial.println(" %");
+  }
+
+  servidorWebSocket.broadcastTXT(ultimoJSON);
+}
+
+// ===============================
+// SETUP
+// ===============================
+void setup() {
+  Serial.begin(115200);
+
+  dht.begin();
+
+  WiFi.begin(WIFI_SSID, WIFI_SENHA);
+
+  Serial.print("Conectando ao Wi-Fi");
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println();
+  Serial.println("Wi-Fi conectado!");
+  Serial.print("IP do ESP32: ");
+  Serial.println(WiFi.localIP());
+
+  servidorHTTP.on("/", []() {
+    servidorHTTP.send(
+      200,
+      "text/html",
+      paginaHTML
+    );
+  });
+
+  servidorHTTP.begin();
+
+  servidorWebSocket.begin();
+  servidorWebSocket.onEvent(eventoWebSocket);
+
+  Serial.println("Servidor HTTP iniciado.");
+  Serial.println("Servidor WebSocket iniciado.");
+}
+
+// ===============================
+// LOOP
+// ===============================
+void loop() {
+  servidorHTTP.handleClient();
+  servidorWebSocket.loop();
+
+  if (millis() - ultimaLeitura >= 2000) {
+    ultimaLeitura = millis();
+    lerSensorETransmitir();
+  }
+}
