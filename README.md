@@ -17,7 +17,7 @@ Teste do sensor → Comunicação LoRa → Rede estrela → Central com dashboar
 O ESP32 lê o DHT22 e mostra os valores no Monitor Serial. Essa etapa confirma se o sensor e a ligação elétrica estão funcionando.
 
 ### 2. Comunicação LoRa
-
+PONTO A PONTO
 Um ESP32 transmite os dados e outro recebe. Essa etapa serve para testar frequência, antena, distância, RSSI, estabilidade e perda de pacotes.
 
 ### 3. Rede estrela
