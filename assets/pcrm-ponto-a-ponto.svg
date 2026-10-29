@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">Enlace LoRa ponto a ponto</title>
+  <desc id="desc">Dois nós ESP32 com rádio LoRa trocam pacotes diretamente e medem RSSI, SNR, latência e perda.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b1220"/><stop offset="1" stop-color="#111d35"/></linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172640"/><stop offset="1" stop-color="#0f1a2d"/></linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#38bdf8"/><stop offset=".5" stop-color="#67e8f9"/><stop offset="1" stop-color="#60a5fa"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#67e8f9"/></marker>
+  </defs>
+  <rect width="1200" height="520" rx="24" fill="url(#bg)"/>
+  <text x="60" y="66" fill="#f8fafc" font-family="Arial, sans-serif" font-size="30" font-weight="700">Enlace LoRa ponto a ponto</text>
+  <text x="60" y="100" fill="#94a3b8" font-family="Arial, sans-serif" font-size="18">Primeiro experimento: um transmissor e um receptor, sem roteamento intermediário.</text>
+  <g transform="translate(90 166)">
+    <rect width="280" height="190" rx="18" fill="url(#card)" stroke="#2563eb" stroke-width="2"/>
+    <rect x="55" y="75" width="170" height="72" rx="8" fill="#253b59" stroke="#38bdf8" stroke-width="2"/>
+    <rect x="78" y="90" width="55" height="38" rx="4" fill="#0b1220" stroke="#64748b"/>
+    <rect x="150" y="89" width="48" height="14" rx="3" fill="#60a5fa"/>
+    <circle cx="157" cy="121" r="5" fill="#f59e0b"/><circle cx="179" cy="121" r="5" fill="#22d3ee"/>
+    <path d="M140 75 C140 42, 140 28, 140 0" stroke="#cbd5e1" stroke-width="7" stroke-linecap="round"/>
+    <path d="M120 24 Q140 5 160 24 M111 38 Q140 10 169 38" fill="none" stroke="#38bdf8" stroke-width="3" opacity=".8"/>
+    <text x="140" y="174" text-anchor="middle" fill="#f8fafc" font-family="Arial, sans-serif" font-size="20" font-weight="700">ESP32 / SX1262</text>
+    <text x="140" y="210" text-anchor="middle" fill="#67e8f9" font-family="Arial, sans-serif" font-size="18">TRANSMISSOR</text>
+  </g>
+  <g transform="translate(830 166)">
+    <rect width="280" height="190" rx="18" fill="url(#card)" stroke="#2563eb" stroke-width="2"/>
+    <rect x="55" y="75" width="170" height="72" rx="8" fill="#253b59" stroke="#38bdf8" stroke-width="2"/>
+    <rect x="78" y="90" width="55" height="38" rx="4" fill="#0b1220" stroke="#64748b"/>
+    <rect x="150" y="89" width="48" height="14" rx="3" fill="#60a5fa"/>
+    <circle cx="157" cy="121" r="5" fill="#22d3ee"/><circle cx="179" cy="121" r="5" fill="#4ade80"/>
+    <path d="M140 75 C140 42, 140 28, 140 0" stroke="#cbd5e1" stroke-width="7" stroke-linecap="round"/>
+    <path d="M120 24 Q140 5 160 24 M111 38 Q140 10 169 38" fill="none" stroke="#38bdf8" stroke-width="3" opacity=".8"/>
+    <text x="140" y="174" text-anchor="middle" fill="#f8fafc" font-family="Arial, sans-serif" font-size="20" font-weight="700">ESP32 / SX1262</text>
+    <text x="140" y="210" text-anchor="middle" fill="#67e8f9" font-family="Arial, sans-serif" font-size="18">RECEPTOR</text>
+  </g>
+  <g filter="url(#glow)">
+    <path d="M385 250 C520 180, 680 180, 815 250" fill="none" stroke="url(#line)" stroke-width="4" stroke-dasharray="10 12" marker-end="url(#arrow)"/>
+    <path d="M815 290 C680 360, 520 360, 385 290" fill="none" stroke="#60a5fa" stroke-width="3" stroke-dasharray="10 12" marker-end="url(#arrow)"/>
+  </g>
+  <text x="600" y="214" text-anchor="middle" fill="#a5f3fc" font-family="Arial, sans-serif" font-size="18" font-weight="700">PACOTE DE TESTE</text>
+  <text x="600" y="340" text-anchor="middle" fill="#93c5fd" font-family="Arial, sans-serif" font-size="17">resposta / confirmação</text>
+  <g transform="translate(100 426)">
+    <rect width="1000" height="58" rx="12" fill="#0f1a2d" stroke="#223755"/>
+    <text x="28" y="36" fill="#cbd5e1" font-family="Arial, sans-serif" font-size="17">Métricas observadas:</text>
+    <text x="230" y="36" fill="#67e8f9" font-family="Arial, sans-serif" font-size="17" font-weight="700">RSSI</text>
+    <text x="320" y="36" fill="#94a3b8" font-family="Arial, sans-serif" font-size="17">•</text>
+    <text x="350" y="36" fill="#67e8f9" font-family="Arial, sans-serif" font-size="17" font-weight="700">SNR</text>
+    <text x="440" y="36" fill="#94a3b8" font-family="Arial, sans-serif" font-size="17">•</text>
+    <text x="470" y="36" fill="#67e8f9" font-family="Arial, sans-serif" font-size="17" font-weight="700">latência</text>
+    <text x="630" y="36" fill="#94a3b8" font-family="Arial, sans-serif" font-size="17">•</text>
+    <text x="660" y="36" fill="#67e8f9" font-family="Arial, sans-serif" font-size="17" font-weight="700">perda de pacotes</text>
+  </g>
+</svg>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">Descoberta e escolha automática de rota</title>
+  <desc id="desc">O nó de origem anuncia uma busca de rota, recebe respostas de vizinhos e escolhe uma rota por custo combinado.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b1220"/><stop offset="1" stop-color="#111d35"/></linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#67e8f9"/></marker>
+    <marker id="good" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#4ade80"/></marker>
+  </defs>
+  <rect width="1200" height="620" rx="24" fill="url(#bg)"/>
+  <text x="60" y="62" fill="#f8fafc" font-family="Arial, sans-serif" font-size="30" font-weight="700">Roteamento aprendido em tempo de execução</text>
+  <text x="60" y="96" fill="#94a3b8" font-family="Arial, sans-serif" font-size="18">Nenhum próximo salto é gravado na placa: a rede mede os enlaces disponíveis e escolhe uma opção.</text>
+  <g font-family="Arial, sans-serif">
+    <circle cx="130" cy="300" r="48" fill="#1d4ed8" stroke="#67e8f9" stroke-width="3"/><text x="130" y="307" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">ORIGEM</text>
+    <circle cx="390" cy="190" r="42" fill="#334155" stroke="#38bdf8" stroke-width="3"/><text x="390" y="197" text-anchor="middle" fill="#fff" font-size="17">N2</text>
+    <circle cx="390" cy="420" r="42" fill="#334155" stroke="#38bdf8" stroke-width="3"/><text x="390" y="427" text-anchor="middle" fill="#fff" font-size="17">N3</text>
+    <circle cx="690" cy="175" r="42" fill="#334155" stroke="#38bdf8" stroke-width="3"/><text x="690" y="182" text-anchor="middle" fill="#fff" font-size="17">N4</text>
+    <circle cx="690" cy="435" r="42" fill="#334155" stroke="#38bdf8" stroke-width="3"/><text x="690" y="442" text-anchor="middle" fill="#fff" font-size="17">N5</text>
+    <circle cx="1035" cy="300" r="52" fill="#f59e0b" stroke="#fde68a" stroke-width="3"/><text x="1035" y="307" text-anchor="middle" fill="#0b1220" font-size="16" font-weight="700">DASHBOARD</text>
+    <g fill="none" stroke="#38bdf8" stroke-width="3" stroke-dasharray="8 8"><path d="M175 280 Q260 210 345 195" marker-end="url(#arrow)"/><path d="M175 320 Q260 390 345 415" marker-end="url(#arrow)"/><path d="M430 190 Q555 130 645 170" marker-end="url(#arrow)"/><path d="M430 420 Q560 480 645 440" marker-end="url(#arrow)"/><path d="M735 190 Q870 220 975 286" marker-end="url(#arrow)"/><path d="M735 430 Q870 380 975 314" marker-end="url(#arrow)"/></g>
+    <path d="M175 280 Q260 210 345 195 Q555 130 645 170 Q870 220 975 286" fill="none" stroke="#4ade80" stroke-width="7" opacity=".9" marker-end="url(#good)"/>
+    <text x="275" y="166" fill="#67e8f9" font-size="15">RSSI / SNR</text><text x="280" y="454" fill="#67e8f9" font-size="15">RSSI / SNR</text><text x="530" y="117" fill="#4ade80" font-size="16" font-weight="700">rota escolhida</text>
+  </g>
+  <g transform="translate(90 520)">
+    <rect width="1020" height="58" rx="12" fill="#0f1a2d" stroke="#2b4164"/>
+    <text x="26" y="36" fill="#cbd5e1" font-family="Arial, sans-serif" font-size="16">Custo conceitual:</text><text x="190" y="36" fill="#67e8f9" font-family="monospace" font-size="16">qualidade do enlace + perda + saltos + estabilidade</text><text x="760" y="36" fill="#94a3b8" font-family="Arial, sans-serif" font-size="15">TTL limita loops</text>
+  </g>
+</svg>

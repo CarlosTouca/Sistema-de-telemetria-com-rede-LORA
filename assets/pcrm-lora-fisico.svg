@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title desc">
+  <title id="title">LoRa na camada física</title>
+  <desc id="desc">Representação conceitual de chirps LoRa e dos parâmetros que controlam alcance, taxa e tempo no ar.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b1220"/><stop offset="1" stop-color="#111d35"/></linearGradient>
+    <linearGradient id="wave" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#38bdf8"/><stop offset=".5" stop-color="#67e8f9"/><stop offset="1" stop-color="#60a5fa"/></linearGradient>
+  </defs>
+  <rect width="1200" height="600" rx="24" fill="url(#bg)"/>
+  <text x="60" y="62" fill="#f8fafc" font-family="Arial, sans-serif" font-size="30" font-weight="700">LoRa: modulação, não apenas “alcance”</text>
+  <text x="60" y="96" fill="#94a3b8" font-family="Arial, sans-serif" font-size="18">O rádio codifica símbolos em chirps; os parâmetros definem o equilíbrio entre robustez, velocidade e tempo no ar.</text>
+  <g transform="translate(70 145)">
+    <rect width="680" height="350" rx="18" fill="#0f1a2d" stroke="#2b4164"/>
+    <text x="28" y="42" fill="#cbd5e1" font-family="Arial, sans-serif" font-size="19" font-weight="700">Chirp Spread Spectrum (visão conceitual)</text>
+    <line x1="52" y1="275" x2="625" y2="275" stroke="#334155"/><line x1="52" y1="80" x2="52" y2="275" stroke="#334155"/>
+    <text x="54" y="305" fill="#64748b" font-family="Arial, sans-serif" font-size="14">tempo</text><text x="20" y="92" fill="#64748b" font-family="Arial, sans-serif" font-size="14" transform="rotate(-90 20 92)">frequência</text>
+    <path d="M60 245 C105 225 135 180 170 105 C205 180 235 225 270 245 C305 225 335 180 370 105 C405 180 435 225 470 245 C505 225 535 180 570 105 C600 175 615 220 625 245" fill="none" stroke="url(#wave)" stroke-width="5"/>
+    <path d="M60 120 C105 140 135 185 170 260 C205 185 235 140 270 120 C305 140 335 185 370 260 C405 185 435 140 470 120 C505 140 535 185 570 260 C600 190 615 145 625 120" fill="none" stroke="#2563eb" stroke-width="3" opacity=".7" stroke-dasharray="7 8"/>
+    <text x="342" y="335" text-anchor="middle" fill="#67e8f9" font-family="Arial, sans-serif" font-size="16">espalhamento aumenta a resistência a ruído</text>
+  </g>
+  <g transform="translate(790 145)">
+    <rect width="340" height="350" rx="18" fill="#0f1a2d" stroke="#2b4164"/>
+    <text x="170" y="44" text-anchor="middle" fill="#f8fafc" font-family="Arial, sans-serif" font-size="20" font-weight="700">Parâmetros</text>
+    <g font-family="Arial, sans-serif" font-size="17">
+      <rect x="28" y="75" width="284" height="52" rx="10" fill="#172640"/><text x="48" y="108" fill="#67e8f9" font-weight="700">SF</text><text x="92" y="108" fill="#cbd5e1">alcance x taxa</text>
+      <rect x="28" y="139" width="284" height="52" rx="10" fill="#172640"/><text x="48" y="172" fill="#67e8f9" font-weight="700">BW</text><text x="92" y="172" fill="#cbd5e1">largura de banda</text>
+      <rect x="28" y="203" width="284" height="52" rx="10" fill="#172640"/><text x="48" y="236" fill="#67e8f9" font-weight="700">CR</text><text x="92" y="236" fill="#cbd5e1">redundância / robustez</text>
+      <rect x="28" y="267" width="284" height="52" rx="10" fill="#172640"/><text x="48" y="300" fill="#67e8f9" font-weight="700">ToA</text><text x="108" y="300" fill="#cbd5e1">tempo no ar</text>
+    </g>
+  </g>
+</svg>

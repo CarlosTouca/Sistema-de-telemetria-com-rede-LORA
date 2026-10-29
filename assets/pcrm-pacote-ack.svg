@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">Pacote LoRa e confirmação final</title>
+  <desc id="desc">Uma origem envia um pacote por dois saltos até o gateway, que confirma a entrega pelo caminho inverso.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b1220"/><stop offset="1" stop-color="#111d35"/></linearGradient>
+    <linearGradient id="packet" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#2563eb"/></linearGradient>
+    <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#67e8f9"/></marker>
+    <marker id="arr2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#4ade80"/></marker>
+  </defs>
+  <rect width="1200" height="620" rx="24" fill="url(#bg)"/>
+  <text x="60" y="62" fill="#f8fafc" font-family="Arial, sans-serif" font-size="30" font-weight="700">Entrega fim a fim: pacote + confirmação</text>
+  <text x="60" y="96" fill="#94a3b8" font-family="Arial, sans-serif" font-size="18">O relay encaminha; a origem só considera o dado entregue após a confirmação do destino.</text>
+  <g font-family="Arial, sans-serif">
+    <circle cx="150" cy="235" r="52" fill="#1d4ed8" stroke="#67e8f9" stroke-width="3"/><text x="150" y="242" text-anchor="middle" fill="#fff" font-size="20" font-weight="700">ORIGEM</text>
+    <circle cx="600" cy="235" r="52" fill="#334155" stroke="#67e8f9" stroke-width="3"/><text x="600" y="242" text-anchor="middle" fill="#fff" font-size="20" font-weight="700">RELAY</text>
+    <circle cx="1050" cy="235" r="52" fill="#f59e0b" stroke="#fde68a" stroke-width="3"/><text x="1050" y="242" text-anchor="middle" fill="#0b1220" font-size="18" font-weight="700">GATEWAY</text>
+    <line x1="210" y1="235" x2="535" y2="235" stroke="#38bdf8" stroke-width="4" marker-end="url(#arr)"/><line x1="660" y1="235" x2="985" y2="235" stroke="#38bdf8" stroke-width="4" marker-end="url(#arr)"/>
+    <text x="370" y="205" text-anchor="middle" fill="#67e8f9" font-size="17" font-weight="700">DADO</text><text x="825" y="205" text-anchor="middle" fill="#67e8f9" font-size="17" font-weight="700">DADO</text>
+    <line x1="985" y1="340" x2="660" y2="340" stroke="#4ade80" stroke-width="4" marker-end="url(#arr2)"/><line x1="535" y1="340" x2="210" y2="340" stroke="#4ade80" stroke-width="4" marker-end="url(#arr2)"/>
+    <text x="825" y="373" text-anchor="middle" fill="#86efac" font-size="17" font-weight="700">CONFIRMACAO_FINAL</text><text x="370" y="373" text-anchor="middle" fill="#86efac" font-size="17">retorno pelo caminho inverso</text>
+  </g>
+  <g transform="translate(120 435)">
+    <rect width="960" height="112" rx="14" fill="#0f1a2d" stroke="#2b4164"/>
+    <rect x="24" y="22" width="170" height="62" rx="8" fill="url(#packet)"/><text x="109" y="48" text-anchor="middle" fill="#fff" font-family="monospace" font-size="15" font-weight="700">TIPO=DADO</text><text x="109" y="70" text-anchor="middle" fill="#dbeafe" font-family="monospace" font-size="14">ID_DADO=...</text>
+    <text x="222" y="60" fill="#cbd5e1" font-family="Arial, sans-serif" font-size="17">ORIGEM • DESTINO • CAMINHO • SALTO_ALVO • TTL • TELEMETRIA</text>
+    <text x="222" y="87" fill="#94a3b8" font-family="Arial, sans-serif" font-size="15">Duplicatas são descartadas e o TTL evita loops.</text>
+  </g>
+</svg>
